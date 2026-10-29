@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LinguiMundi - React</title>
+    <!-- Importamos React desde CDN para no instalar nada -->
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <style>
+        body { margin: 0; font-family: 'Segoe UI', sans-serif; background: #f0f2f5; }
+        .container { display: flex; justify-content: center; align-items: center; height: 100vh; }
+        .box { background: white; padding: 30px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 300px; text-align: center; }
+        input { width: 100%; padding: 10px; margin-bottom: 10px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 5px; }
+        button { width: 100%; padding: 10px; background: #667eea; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; }
+        .exito { color: green; background: #d4edda; padding: 10px; border-radius: 5px; margin-bottom: 10px; }
+        .error { color: red; background: #f8d7da; padding: 10px; border-radius: 5px; margin-bottom: 10px; }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <!-- Aquí va el código de React -->
+    <script type="text/babel">
+        // Componente principal de LinguiMundi
+        function App() {
+            // Estados para manejar el login
+            const [usuario, setUsuario] = React.useState('aloha');
+            const [contrasena, setContrasena] = React.useState('aloha555');
+            const [logueado, setLogueado] = React.useState(false);
+            const [mensaje, setMensaje] = React.useState({ texto: '', tipo: '' });
+
+            // Función para conectar con el backend de Node.js
+            const iniciarSesion = async (e) => {
+                e.preventDefault();
+                try {
+                    const respuesta = await fetch('http://localhost:8080/api/auth/login', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ usuario, contrasena })
+                    });
+                    const data = await respuesta.json();
+                    
+                    if (data.exitoso) {
+                        setMensaje({ texto: '✅ ' + data.mensaje, tipo: 'exito' });
+                        setTimeout(() => setLogueado(true), 1000); // Espera 1 seg y muestra el dashboard
+                    } else {
+                        setMensaje({ texto: '❌ ' + data.mensaje, tipo: 'error' });
+                    }
+                } catch (error) {
+                    setMensaje({ texto: '🔴 Error: Backend no está corriendo', tipo: 'error' });
+                }
+            };
+
+            // Si ya inició sesión, mostramos el Dashboard
+            if (logueado) {
+                return (
+                    <div className="container">
+                        <div className="box">
+                            <h1>🌍 Dashboard</h1>
+                            <h2>¡Bienvenido, {usuario}!</h2>
+                            <button onClick={() => setLogueado(false)} style={{ background: '#e74c3c', marginTop: '20px' }}>Cerrar Sesión</button>
+                        </div>
+                    </div>
+                );
+            }
+
+            // Si no ha iniciado sesión, mostramos el Login
+            return (
+                <div className="container">
+                    <div className="box">
+                        <h1>🌍 LinguiMundi</h1>
+                        <h2>Iniciar Sesión</h2>
+                        
+                        {mensaje.texto && <div className={mensaje.tipo}>{mensaje.texto}</div>}
+                        
+                        <form onSubmit={iniciarSesion}>
+                            <input type="text" value={usuario} onChange={(e) => setUsuario(e.target.value)} placeholder="Usuario" required />
+                            <input type="password" value={contrasena} onChange={(e) => setContrasena(e.target.value)} placeholder="Contraseña" required />
+                            <button type="submit">Ingresar</button>
+                        </form>
+                    </div>
+                </div>
+            );
+        }
+
+        // Renderizamos el componente en el div con id="root"
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>

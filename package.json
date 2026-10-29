@@ -1,0 +1,15 @@
+{
+  "name": "linguimundi-react",
+  "version": "1.0.0",
+  "description": "Componente frontend del proyecto LinguiMundi con React JS",
+  "main": "index.html",
+  "scripts": {
+    "start": "echo 'Abre el archivo index.html en tu navegador'"
+  },
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "author": "Aloka",
+  "license": "ISC"
+}
